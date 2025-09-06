@@ -1,333 +1,279 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import About from "./sections/About";
-import Contact from "./sections/Contact";
-import Services from "./sections/Services";
-import Works from "./sections/Works";
+import { useState, useEffect, useCallback, Suspense } from "react";
+import { Home, User, Wrench, Briefcase, Mail } from "lucide-react";
+
+// Import sections from separate files
+import About from './sections/About';
+import Services from './sections/Services';
+import Works from './sections/Works';
+import Contact from './sections/Contact';
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
   const [activeSection, setActiveSection] = useState('Home');
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
     setIsLoaded(true);
 
-    const handleMouseMove = (e) => {
-      const x = (e.clientX / window.innerWidth) * 100;
-      const y = (e.clientY / window.innerHeight) * 100;
-      setMousePosition({ x, y });
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-
+    window.addEventListener('scroll', handleScroll);
+    
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
-  const handleNavClick = (section) => {
+  const handleNavClick = useCallback((section) => {
     setActiveSection(section);
-  };
+    // التمرير إلى أعلى الصفحة بسلاسة
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, []);
 
-  // Define heights for fixed elements
-  // Adjust these values based on your actual Navbar and Let's Talk button heights
-  // استخدم قيم تقريبية بالبكسل، يمكنك قياسها بدقة باستخدام أدوات المطور (F12) في المتصفح
-  const NAVBAR_HEIGHT_PX = 72; // Approximate height of your bottom navbar (e.g., 60px content + 12px padding)
-  const HEADER_HEIGHT_PX = 64; // Approximate height of your top header (e.g., 40px content + 24px padding-top)
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setImageLoaded(true);
+    img.src = "/i.png";
+  }, []);
 
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-gray-950 via-zinc-900 to-black text-white font-sans relative overflow-hidden flex flex-col">
-      {/* Enhanced Dynamic Background */}
-      <div className="absolute inset-0 overflow-hidden -z-10">
-        <div
-          className="absolute inset-0 opacity-20 transition-all duration-700 ease-out"
-          style={{
-            background: `
-              radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%,
-                rgba(99, 102, 241, 0.4) 0%,
-                rgba(99, 102, 241, 0.2) 25%,
-                transparent 60%),
-              radial-gradient(circle at ${100 - mousePosition.x}% ${100 - mousePosition.y}%,
-                rgba(139, 92, 246, 0.35) 0%,
-                rgba(139, 92, 246, 0.15) 30%,
-                transparent 65%),
-              radial-gradient(circle at 50% 50%,
-                rgba(59, 130, 246, 0.25) 0%,
-                rgba(59, 130, 246, 0.1) 40%,
-                transparent 70%)
-            `,
-            filter: 'blur(1px)',
-          }}
-        />
-
-        {/* Enhanced Floating Particles */}
-        <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute bg-white/20 rounded-full"
-              style={{
-                width: `${Math.random() * 4 + 1}px`,
-                height: `${Math.random() * 4 + 1}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animation: `floatParticle ${8 + i * 2}s ease-in-out infinite`,
-                animationDelay: `${i * 0.2}s`,
-                filter: 'blur(0.5px)',
-                boxShadow: '0 0 10px rgba(255, 255, 255, 0.3)'
-              }}
-            />
-          ))}
-        </div>
-
-        {/* High-Quality Dot Pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.08]"
-          style={{
+    <div className="min-h-screen w-full bg-black text-white overflow-x-hidden pb-20 relative">
+      
+      {/* Enhanced animated background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {/* Grid pattern */}
+        <div className="absolute inset-0 opacity-[0.02]">
+          <div className="absolute inset-0" style={{
             backgroundImage: `
-              radial-gradient(circle at 2px 2px, rgba(255,255,255,0.6) 1px, transparent 0),
-              radial-gradient(circle at 30px 30px, rgba(99, 102, 241, 0.4) 0.8px, transparent 0)
+              linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
             `,
-            backgroundSize: '60px 60px, 100px 100px',
-            animation: 'breatheDots 12s ease-in-out infinite'
-          }}
-        />
-      </div>
-
-      {/* Premium Ambient Lighting */}
-      <div className="absolute inset-0 pointer-events-none -z-10">
-        <div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl"
-          style={{
-            transform: `translate(${mousePosition.x * 0.8}px, ${mousePosition.y * 0.8}px)`,
-            animation: 'floatLight 15s ease-in-out infinite',
-            filter: 'blur(60px)'
-          }}
-        />
-        <div
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/15 rounded-full blur-3xl"
-          style={{
-            transform: `translate(${mousePosition.x * -0.6}px, ${mousePosition.y * -0.6}px)`,
-            animation: 'floatLight 18s ease-in-out infinite reverse',
-            filter: 'blur(50px)'
-          }}
-        />
-        <div
-          className="absolute top-1/2 right-1/2 w-72 h-72 bg-blue-500/12 rounded-full blur-3xl"
-          style={{
-            transform: `translate(${mousePosition.x * 0.4}px, ${mousePosition.y * 0.4}px)`,
-            animation: 'floatLight 20s ease-in-out infinite',
-            filter: 'blur(40px)'
-          }}
-        />
-      </div>
-
-      {/* Header Area (branding and contact button) - Fixed at top */}
-      <div className="fixed top-0 left-0 w-full flex justify-between items-center px-4 md:px-6 z-30"
-           style={{ height: `${HEADER_HEIGHT_PX}px` }}> {/* Use fixed height here */}
-        {/* Top Corner Branding */}
-        <div className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}>
-          <div className="flex items-center gap-2 md:gap-3">
-            <span className="text-base md:text-lg lg:text-xl font-bold bg-gradient-to-r from-white via-gray-100 to-indigo-200 bg-clip-text text-transparent">
-              Haitem Belaib
-            </span>
-            <div className="flex items-center gap-1 md:gap-2">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-400/50" />
-              <span className="text-xs text-gray-400 hidden sm:inline">Available</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Enhanced Contact Button */}
-        <div className={`transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}>
-          <a
-            href="mailto:haitembelaib@gmail.com"
-            className="group relative px-3 py-2 md:px-5 md:py-3 bg-gradient-to-r from-white/10 to-white/20 hover:from-white/20 hover:to-white/30 border border-white/20 hover:border-white/40 rounded-full transition-all duration-500 backdrop-blur-md overflow-hidden"
-            style={{
-              boxShadow: '0 8px 32px rgba(255, 255, 255, 0.1)',
-            }}
-          >
-            <span className="relative z-10 text-sm font-medium">Let's Talk</span>
-          </a>
+            backgroundSize: '50px 50px'
+          }} />
         </div>
       </div>
 
-      {/* Main Content Area (Now takes remaining space) */}
-      <div
-        className="flex-grow flex flex-col items-center justify-center text-center px-4 md:px-6 relative overflow-hidden"
-        style={{
-          paddingTop: `${HEADER_HEIGHT_PX}px`, // Push content down to clear fixed header
-          paddingBottom: `${NAVBAR_HEIGHT_PX}px`, // Push content up to clear fixed navbar
-          minHeight: `calc(100vh - ${HEADER_HEIGHT_PX}px - ${NAVBAR_HEIGHT_PX}px)` // Ensure it fills remaining space
-        }}
-      >
-        {/* Conditional Rendering of Sections */}
-        {activeSection === 'Home' && (
-          <>
-            {/* Enhanced Profile Section */}
-            <div className={`relative mb-6 md:mb-8 lg:mb-10 transition-all duration-1000 delay-200 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-              <div
-                className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56 xl:w-64 xl:h-64 group cursor-pointer mx-auto"
-                style={{
-                  animation: 'floatProfile 10s ease-in-out infinite'
-                }}
-              >
-                {/* Multi-layered High-Quality Glow */}
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/40 via-purple-500/35 to-blue-500/40 rounded-full blur-2xl animate-pulse"
-                     style={{ filter: 'blur(30px)' }} />
-                <div className="absolute inset-1 bg-gradient-to-r from-white/25 via-white/15 to-white/25 rounded-full blur-xl"
-                     style={{ filter: 'blur(20px)' }} />
-                <div className="absolute inset-2 bg-gradient-to-r from-indigo-300/30 via-purple-300/25 to-blue-300/30 rounded-full blur-lg"
-                     style={{ filter: 'blur(15px)' }} />
-
-                {/* Enhanced Rotating Border */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-400/50 via-purple-400/50 to-blue-400/50 p-0.5"
-                     style={{ animation: 'rotateBorder 25s linear infinite' }}>
-                  <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-950 via-zinc-900 to-black" />
-                </div>
-
-                {/* Profile Image with Enhanced Effects */}
-                <div className="absolute inset-1 rounded-full overflow-hidden">
-                  <img
-                    src="i.png" // تأكد من أن هذا المسار صحيح لصورة ملفك الشخصي
-                    alt="Haitem Belaib"
-                    width="512" // <<<<<<< إضافة مهمة لتحسين CLS >>>>>>>
-                    height="512" // <<<<<<< إضافة مهمة لتحسين CLS >>>>>>>
-                    // افترضت أن الصورة مربعة وأن حجمها الأصلي لا يقل عن 512x512 بكسل.
-                    // يرجى التحقق من الأبعاد الفعلية لصورة i.png وتعديل هذه القيم إذا لزم الأمر.
-                    className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
-                    style={{
-                      filter: 'drop-shadow(0 0 30px rgba(99, 102, 241, 0.4)) contrast(1.1) brightness(1.05)',
-                    }}
-                  />
-                </div>
-
-                {/* Enhanced Interaction Effects */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 group-hover:animate-ping" />
-              </div>
-            </div>
-
-            {/* Optimized Typography */}
-            <div className={`transition-all duration-1000 delay-400 space-y-4 md:space-y-6 max-w-4xl mx-auto ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-              <div className="space-y-2 md:space-y-3">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-none">
-                  <span className="bg-gradient-to-r from-white via-indigo-100 to-purple-100 bg-clip-text text-transparent">
-                    Haitem Belaib
-                  </span>
-                  <sup className="text-gray-500 text-xs md:text-sm opacity-60 ml-1">®</sup>
-                </h1>
-              </div>
-
-              <div className="space-y-3 md:space-y-4">
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 max-w-3xl leading-relaxed mx-auto">
-                  <span className="bg-gradient-to-r from-gray-300 via-indigo-200 to-purple-200 bg-clip-text text-transparent">
-                    CS Student @ ESTIN | Full-Stack Developer | Project Manager | Passionate about Startups & Innovation
-                  </span>
-                </p>
-              </div>
-            </div>
-          </>
-        )}
-
-        {activeSection === 'About' && <About />}
-        {activeSection === 'Services' && <Services />}
-        {activeSection === 'Works' && <Works />}
-        {activeSection === 'Contact' && <Contact />}
-      </div>
-
-      {/* Footer / Navigation Bar Area - Fixed at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-center py-4 md:py-6">
-        <div
-          className="
-            bg-black/70 backdrop-blur-xl border border-white/25 rounded-2xl
-            px-2 py-3 sm:px-3 md:px-4 md:py-4 shadow-2xl
-            max-w-fit mx-auto
-            flex items-center
-          "
-          style={{
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3), 0 0 60px rgba(99, 102, 241, 0.1)'
-          }}
-        >
-          <div className="flex gap-1 sm:gap-2 md:gap-3">
-            {['Home', 'About', 'Services', 'Works', 'Contact'].map((item, index) => (
-              <Button
-                key={item}
-                variant="ghost"
-                onClick={() => handleNavClick(item)}
-                className={`relative text-xs sm:text-sm px-2 sm:px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-500 overflow-hidden font-medium ${
-                  activeSection === item
-                    ? 'text-black bg-white shadow-lg shadow-white/30'
-                    : 'text-gray-300 hover:text-white hover:bg-white/15'
+      {/* Enhanced bottom navigation */}
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-lg z-50 p-4">
+        <div className="bg-black/90 backdrop-blur-2xl border border-gray-600/50 shadow-2xl rounded-3xl p-2">
+          <div className="flex justify-around items-center">
+            {[
+              { icon: Home, label: 'Home', section: 'Home' },
+              { icon: User, label: 'About', section: 'About' },
+              { icon: Wrench, label: 'Services', section: 'Services' },
+              { icon: Briefcase, label: 'Works', section: 'Works' },
+              { icon: Mail, label: 'Contact', section: 'Contact' },
+            ].map(({ icon: Icon, label, section }) => (
+              <button
+                key={section}
+                onClick={() => handleNavClick(section)}
+                className={`relative flex flex-col items-center p-3 rounded-2xl text-sm font-medium transition-all duration-500 ${
+                  activeSection === section
+                    ? 'text-black bg-white shadow-xl scale-110'
+                    : 'text-gray-400 hover:text-white hover:bg-white/10 hover:scale-105'
                 }`}
-                style={{
-                  animationDelay: `${index * 100}ms`,
-                  boxShadow: activeSection === item ? '0 0 20px rgba(255, 255, 255, 0.5)' : 'none'
-                }}
+                aria-label={`Navigate to ${label} section`}
               >
-                <span className="relative z-10">{item}</span>
-                {activeSection === item && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/95 to-white rounded-xl animate-pulse" />
+                <Icon className="w-5 h-5 mb-1" />
+                <span className="text-xs hidden sm:block">{label}</span>
+                
+                {/* Active indicator */}
+                {activeSection === section && (
+                  <>
+                    <div className="absolute inset-0 bg-white rounded-2xl animate-pulse opacity-30" />
+                    <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full" />
+                  </>
                 )}
-              </Button>
+                
+                {/* Hover glow */}
+                <div className={`absolute inset-0 bg-white/20 rounded-2xl opacity-0 ${
+                  activeSection !== section ? 'group-hover:opacity-100' : ''
+                } transition-opacity duration-300 blur-sm`} />
+              </button>
             ))}
           </div>
         </div>
-      </div>
+      </nav>
 
-      {/* Enhanced Animations */}
-      <style jsx>{`
-        @keyframes floatProfile {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-10px) rotate(1deg); }
-        }
+      {/* Main Content */}
+      <main className="relative z-10">
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="relative">
+              <div className="w-16 h-16 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
+              <div className="absolute inset-0 w-16 h-16 border-2 border-transparent border-t-white/50 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+            </div>
+          </div>
+        }>
+          {activeSection === 'Home' && (
+            <section className="min-h-screen flex items-center justify-center px-4 py-20">
+              <div className="max-w-8xl mx-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
-        @keyframes floatLight {
-          0%, 100% { transform: translateY(0px) scale(1); }
-          50% { transform: translateY(-20px) scale(1.1); }
-        }
+                  {/* Enhanced Hero Content */}
+                  <div className="space-y-10 text-center lg:text-left relative">
+                    
+                    {/* Main title with enhanced effects */}
+                    <div className={`transition-all duration-1500 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}>
+                      <div className="relative group">
+                        {/* Enhanced glow effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/15 via-white/8 to-white/15 rounded-3xl blur-2xl group-hover:from-white/20 group-hover:via-white/12 group-hover:to-white/20 transition-all duration-1000 animate-pulse" />
+                        
+                        <div className="relative bg-gradient-to-br from-black/80 via-black/60 to-black/40 backdrop-blur-2xl p-10 rounded-3xl border border-gray-700/50 shadow-2xl group-hover:border-white/30 transition-all duration-700 overflow-hidden">
+                          {/* Animated background elements */}
+                          <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-xl animate-pulse" />
+                          <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-gradient-to-tr from-white/5 to-transparent rounded-full blur-lg" />
 
-        @keyframes breatheDots {
-          0%, 100% { opacity: 0.08; transform: scale(1); }
-          50% { opacity: 0.15; transform: scale(1.05); }
-        }
+                          <div className="absolute bottom-8 left-8 w-1.5 h-1.5 bg-white/40 rounded-full" />
+                          
+                          <h1 className="relative z-10">
+                            <div className="text-4xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight">
+                              <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent drop-shadow-2xl animate-pulse">
+                                HAITEM
+                              </span>
+                              <span className="block bg-gradient-to-r from-gray-200 via-white to-gray-300 bg-clip-text text-transparent mt-2 relative">
+                                BELAIB
+                                {/* Enhanced underline */}
+                                <div className="absolute -bottom-3 left-0 w-32 h-1 bg-gradient-to-r from-white via-white/60 to-transparent rounded-full animate-pulse" />
+                                <div className="absolute -bottom-4 left-0 w-24 h-0.5 bg-gradient-to-r from-white/60 to-transparent rounded-full" />
+                              </span>
+                            </div>
+                          </h1>
+                        </div>
+                      </div>
+                    </div>
 
-        @keyframes floatParticle {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.6; }
-          25% { transform: translateY(-20px) translateX(10px) rotate(90deg); opacity: 0.2; }
-          50% { transform: translateY(-5px) translateX(-15px) rotate(180deg); opacity: 0.8; }
-          75% { transform: translateY(15px) translateX(5px) rotate(270deg); opacity: 0.3; }
-        }
+                    {/* Enhanced subtitle */}
+                    <div className={`transition-all duration-1500 delay-500 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}>
+                      <div className="relative group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/8 via-white/4 to-transparent rounded-2xl blur-xl group-hover:from-white/12 group-hover:via-white/6 transition-all duration-700" />
+                        
+                        <div className="relative bg-gradient-to-br from-black/70 via-black/50 to-black/30 backdrop-blur-xl p-8 rounded-2xl border border-gray-600/50 shadow-xl group-hover:border-white/20 transition-all duration-700 overflow-hidden">
+                          {/* Corner decorations */}
+                          <div className="absolute top-0 left-8 w-8 h-0.5 bg-gradient-to-r from-white/60 to-transparent" />
+                          <div className="absolute bottom-0 right-8 w-8 h-0.5 bg-gradient-to-l from-white/60 to-transparent" />
+                          <div className="absolute top-4 right-4 w-1 h-1 bg-white/50 rounded-full" />
+                          <div className="absolute bottom-4 left-4 w-1 h-1 bg-white/30 rounded-full" />
+                          
+                          <p className="text-lg md:text-xl lg:text-2xl text-gray-100 max-w-2xl mx-auto lg:mx-0 relative z-10 leading-relaxed">
+                            <span className="text-white font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Full-Stack Developer</span>
+                            <span className="text-gray-300"> & </span>
+                            <span className="text-white font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Project Manager</span>
+                            <br className="hidden md:block" />
+                            <span className="text-gray-200"> Passionate about  </span>
+                            <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent font-bold animate-pulse">Startups & Innovation</span>
+                            <span className="text-gray-200">.</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
 
-        @keyframes rotateBorder {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        /* Custom Scrollbar Styles for Webkit (Chrome, Edge, Safari) */
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 5px; /* Reduced width even further for minimal look */
-          border-radius: 2.5px; /* Maintain rounded caps */
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.01); /* Even more subtle track */
-          border-radius: 2.5px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: rgba(99, 102, 241, 0.2); /* Very faint blue-purple thumb */
-          border-radius: 2.5px;
-          border: none; /* Removed border completely for a cleaner look */
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background-color: rgba(99, 102, 241, 0.4); /* Slightly more visible on hover */
-        }
+                    {/* Enhanced action buttons */}
+                    <div className={`transition-all duration-1500 delay-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}>
+                      <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
+                        <a
+                          href="mailto:haitembelaib@gmail.com"
+                          className="group relative overflow-hidden px-10 py-5 bg-gradient-to-r from-white to-gray-100 text-black rounded-2xl font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-500 border-2 border-transparent hover:border-white/50"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-white transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+                          <span className="relative z-10 flex items-center gap-3">
+                            <Mail className="w-5 h-5" />
+                            Get In Touch
+                          </span>
+                          <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
+                        </a>
+                        
+                        <button
+                          onClick={() => handleNavClick('Works')}
+                          className="group relative overflow-hidden px-10 py-5 border-2 border-white text-white rounded-2xl font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-500 bg-gradient-to-r from-black/90 to-black/70 backdrop-blur-xl"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/15 to-white/10 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+                          <span className="relative z-10 flex items-center gap-3">
+                            <Briefcase className="w-5 h-5" />
+                            View My Work
+                          </span>
+                          <div className="absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
 
-        /* Hide scrollbar for Firefox (if you want to hide it completely) */
-        .custom-scrollbar {
-            scrollbar-width: thin; /* "auto" or "thin" for Firefox */
-            scrollbar-color: rgba(99, 102, 241, 0.2) rgba(255, 255, 255, 0.01); /* thumb color track color */
-        }
-      `}</style>
+                  {/* Enhanced Hero Image */}
+                  <div className="flex flex-col items-center lg:items-end relative">
+                    <div className={`relative transition-all duration-2000 delay-2000 ${isLoaded ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-20 opacity-0 scale-95'}`}>
+                      {imageLoaded ? (
+                        <div className="relative group">
+                          {/* Enhanced glow effects */}
+                          <div className="absolute -inset-4 bg-gradient-to-br from-white/10 via-white/5 to-transparent rounded-3xl blur-2xl group-hover:from-white/15 group-hover:via-white/8 transition-all duration-700"></div>
+                          
+                          <div className="relative overflow-hidden rounded-3xl">
+                            <img
+                              src="/i.png"
+                              alt="Haitem Belaib"
+                              className="relative w-80 h-96 md:w-96 md:h-[500px] object-cover shadow-2xl group-hover:scale-105 transition-all duration-700 border border-gray-800"
+                            />
+                            
+                            {/* Strong dark gradient from bottom to top */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 via-black/20 to-transparent rounded-3xl group-hover:opacity-0 transition-all duration-700" />
+                          </div>
+                          
+                          {/* Enhanced ring effect */}
+                          <div className="absolute inset-0 rounded-3xl ring-2 ring-white/20 group-hover:ring-white/40 transition-all duration-700" />
+                          <div className="absolute inset-0 rounded-3xl ring-4 ring-white/5 group-hover:ring-white/10 transition-all duration-700 blur-sm" />
+
+                          {/* Enhanced floating elements */}
+                          <div className="absolute -top-6 -right-6 w-12 h-12 bg-gradient-to-br from-white/40 to-white/20 rounded-full animate-pulse blur-sm" />
+                          <div className="absolute -bottom-8 -left-8 w-16 h-16 border-2 border-white/30 rounded-full animate-spin" style={{animationDuration: '10s'}} />
+                          <div className="absolute top-1/3 -left-12 w-8 h-8 bg-gradient-to-r from-white/50 to-transparent rounded-full animate-bounce" style={{animationDuration: '3s'}} />
+                          <div className="absolute bottom-1/3 -right-10 w-6 h-6 bg-white/20 rounded-full animate-pulse" />
+                        </div>
+                      ) : (
+                        <div className="w-80 h-96 md:w-96 md:h-[500px] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl flex items-center justify-center animate-pulse border border-gray-700">
+                          <div className="relative">
+                            <div className="w-16 h-16 border-2 border-gray-600 border-t-white rounded-full animate-spin" />
+                            <div className="absolute inset-0 w-16 h-16 border-2 border-transparent border-t-white/50 rounded-full animate-spin" style={{ animationDirection: 'reverse' }} />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Enhanced quote */}
+                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/3 z-30 w-full max-w-[280px]">
+                        <div className="relative group/quote">
+                          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 rounded-lg blur-md group-hover/quote:from-white/15 group-hover/quote:to-white/8 transition-all duration-700"></div>
+                          
+                          <div className="relative bg-gradient-to-br from-black/80 via-black/60 to-black/40 backdrop-blur-2xl p-3 rounded-lg border border-gray-800/50 shadow-2xl group-hover/quote:border-white/20 transition-all duration-500 overflow-hidden">
+                            {/* Quote decorations */}
+                            <div className="absolute top-0.5 left-0.5 text-white/20 text-sm font-bold">"</div>
+                            <div className="absolute bottom-0.5 right-0.5 text-white/20 text-sm font-bold">"</div>
+                            
+                            <p className="text-xs text-white italic leading-snug drop-shadow-lg relative z-10 px-1">
+                              "Creativity is not what I keep inside, but what I set free for others to live."
+                            </p>
+                            <p className="text-gray-300 mt-1 font-semibold text-xs text-center relative z-10">
+                              – Haitem Belaib
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {activeSection === 'About' && <About />}
+          {activeSection === 'Services' && <Services />}
+          {activeSection === 'Works' && <Works />}
+          {activeSection === 'Contact' && <Contact />}
+        </Suspense>
+      </main>
     </div>
   );
 }
